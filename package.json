@@ -1,0 +1,21 @@
+{
+  "name": "node-multi-tenant",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.14",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "express": "^4.18.1",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.23.2"
+  }
+}
