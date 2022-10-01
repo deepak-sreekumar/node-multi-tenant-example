@@ -4,7 +4,7 @@ import createConsumer from "../helpers/createConsumer";
 import amqpChannel from "../config/amqpChannels";
 
 import UserModel from "../models/User";
-import { consumerWrapper } from "../middlewares/consumerWrapper";
+import { consumerTenantContextHandler } from "../middlewares/consumerTenantContextHandler";
 import { getTenantFromStore } from "../helpers/getTenantFromStore";
 const TAG = "assessmentWorker";
 
@@ -26,5 +26,8 @@ export const processAssessment = async (
   amqpChannel.ack(msg);
 };
 
-const worker = consumerWrapper(processAssessment, "assessment-worker");
+const worker = consumerTenantContextHandler(
+  processAssessment,
+  "assessment-worker"
+);
 createConsumer(TAG, worker);

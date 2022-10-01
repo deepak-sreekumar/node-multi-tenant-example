@@ -4,7 +4,10 @@ import { Sequelize } from "sequelize";
 import { username, password, host } from "../config/sequelize";
 import amqpChannel from "../config/amqpChannels";
 // eslint-disable-next-line @typescript-eslint/ban-types
-export const consumerWrapper = (handler: Function, functionTag: string) => {
+export const consumerTenantContextHandler = (
+  handler: Function,
+  functionTag: string
+) => {
   return async function (message: ConsumeMessage | null): Promise<void> {
     const TAG = `[consumerWrapper | ${functionTag}]`;
     if (!message) {
