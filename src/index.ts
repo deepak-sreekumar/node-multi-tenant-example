@@ -3,6 +3,7 @@ import { Sequelize } from "sequelize";
 import { username, password, host } from "./config/sequelize";
 import { context } from "./config/context";
 import { getAllUsers } from "./controllers/UserController";
+import { getTenantRedisClient } from "./config/redis";
 
 export const app = express();
 
@@ -33,6 +34,10 @@ app.use((req, res, next) => {
       console.error("Unable to connect to the database:", error);
     }
     store.set("sequelize", sequelize);
+
+    const redis = getTenantRedisClient(tenant);
+
+    store.set("redis", redis);
 
     return next();
   });
