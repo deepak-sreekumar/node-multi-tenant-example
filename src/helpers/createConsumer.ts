@@ -1,6 +1,6 @@
 import { ConsumeMessage, ConfirmChannel } from "amqplib";
 
-import amqpChannel from "./config/amqpChannels";
+import amqpChannel from "../config/amqpChannels";
 
 const createConsumer = (
   queue: string,

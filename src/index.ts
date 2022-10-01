@@ -1,8 +1,8 @@
 import express from "express";
 import { Sequelize } from "sequelize";
 import { username, password, host } from "./config/sequelize";
-import { context } from "./context";
-import { getAllUsers } from "./UserController";
+import { context } from "./config/context";
+import { getAllUsers } from "./controllers/UserController";
 
 export const app = express();
 

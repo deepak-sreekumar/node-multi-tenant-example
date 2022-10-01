@@ -1,5 +1,5 @@
 import { INTEGER, Sequelize, STRING } from "sequelize";
-import { context } from "../context";
+import { context } from "../config/context";
 
 const UserTable = () => {
   const store = context.getStore();

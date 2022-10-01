@@ -1,11 +1,11 @@
 import { ConsumeMessage } from "amqplib";
 
-import createConsumer from "./createConsumer";
-import amqpChannel from "./config/amqpChannels";
+import createConsumer from "../helpers/createConsumer";
+import amqpChannel from "../config/amqpChannels";
 
-import UserModel from "./models/User";
-import { consumerWrapper } from "./consumerWrapper";
-
+import UserModel from "../models/User";
+import { consumerWrapper } from "../middlewares/consumerWrapper";
+import { getTenantFromStore } from "../helpers/getTenantFromStore";
 const TAG = "assessmentWorker";
 
 export const processAssessment = async (
@@ -20,7 +20,8 @@ export const processAssessment = async (
 
   const User = UserModel();
   const user = await User.findAll({ raw: true });
-  console.log("Got User data");
+  const tenantId = getTenantFromStore();
+  console.log(`Got User data for ${tenantId}`);
   console.info(user);
   amqpChannel.ack(msg);
 };

@@ -1,8 +1,8 @@
 import { ConsumeMessage } from "amqplib";
-import { context } from "./context";
+import { context } from "../config/context";
 import { Sequelize } from "sequelize";
-import { username, password, host } from "./config/sequelize";
-import amqpChannel from "./config/amqpChannels";
+import { username, password, host } from "../config/sequelize";
+import amqpChannel from "../config/amqpChannels";
 // eslint-disable-next-line @typescript-eslint/ban-types
 export const consumerWrapper = (handler: Function, functionTag: string) => {
   return async function (message: ConsumeMessage | null): Promise<void> {
