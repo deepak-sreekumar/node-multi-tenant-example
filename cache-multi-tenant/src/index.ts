@@ -1,5 +1,5 @@
 import express from "express";
-import { apiTenantContextHandler } from "./middleware/apiTenantContextHandler";
+import { apiTenantContextHandler } from "./middlewares/apiTenantContextHandler";
 import User from "./models/User";
 import { getAllUsers, insertUser } from "./UserController";
 

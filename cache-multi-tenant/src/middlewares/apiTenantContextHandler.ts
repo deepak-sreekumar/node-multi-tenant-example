@@ -1,26 +1,26 @@
 import { NextFunction, Request, Response } from "express";
 
-import { storeSet, contextInIt } from "../context";
+import { setKeyInStore, contextInIt } from "../context";
 import { getTenantRedisClient } from "../config/redis";
 import { getTenantSequelizeClient } from "../config/sequelize";
 
-export const apiTenantContextHandler = (
+export const apiTenantContextHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  contextInIt(async () => {
+): Promise<void> => {
+  await contextInIt(async () => {
     const tenant = req.headers["tenant-id"] as string;
-    storeSet("tenant-id", tenant);
+    setKeyInStore("tenant-id", tenant);
 
     if (!tenant) {
       return res.send(401);
     }
     const sequelize = await getTenantSequelizeClient(tenant);
-    storeSet("sequelize", sequelize);
+    setKeyInStore("sequelize", sequelize);
 
     const redis = getTenantRedisClient(tenant);
-    storeSet("redis", redis);
+    setKeyInStore("redis", redis);
 
     return next();
   });

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { storeGet } from "./context";
+import { getValueFromStore } from "./context";
 import { redisGet } from "./helpers/redisHelpers";
 import TaskModel from "./models/Task";
 import UserModel from "./models/User";
@@ -20,7 +20,7 @@ export const insertUser = async (req: Request, res: Response) => {
   const Task = TaskModel();
   const User = UserModel();
 
-  const tenantId = storeGet<string>("tenant-id");
+  const tenantId = getValueFromStore<string>("tenant-id");
 
   const reqBody = {
     ...req.body,

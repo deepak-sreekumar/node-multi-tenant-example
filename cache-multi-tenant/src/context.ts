@@ -2,8 +2,8 @@ import { AsyncLocalStorage } from "async_hooks";
 
 export const context = new AsyncLocalStorage<Map<string, unknown>>();
 
-export const storeGet = <T>(key: string): T => {
-  const store = storeOrError();
+export const getValueFromStore = <T>(key: string): T => {
+  const store = getStore();
   const userDep = (store as Map<string, T>).get(key);
 
   if (!userDep) {
@@ -13,8 +13,8 @@ export const storeGet = <T>(key: string): T => {
   return userDep ?? (key as T);
 };
 
-export const storeSet = <T>(key: string, value: T) => {
-  const store = storeOrError();
+export const setKeyInStore = <T>(key: string, value: T) => {
+  const store = getStore();
   store.set(key, value);
 };
 
@@ -22,7 +22,7 @@ export const contextInIt = <T>(cb: () => T) => {
   return context.run(new Map(), cb);
 };
 
-const storeOrError = () => {
+const getStore = () => {
   const store = context.getStore();
 
   if (store == null) {
