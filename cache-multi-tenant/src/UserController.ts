@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { storeGet } from "./context";
+import { redisGet } from "./helpers/redisHelpers";
 import TaskModel from "./models/Task";
 import UserModel from "./models/User";
 
@@ -10,8 +11,9 @@ export const getAllUsers = async (req: Request, res: Response) => {
     include: { model: Task, as: "taskData", attributes: ["task"] },
     attributes: ["email"],
   });
+  const tenantInfo = await redisGet("company-info");
 
-  return res.send(users);
+  return res.send({ users, tenantInfo });
 };
 
 export const insertUser = async (req: Request, res: Response) => {
@@ -19,9 +21,7 @@ export const insertUser = async (req: Request, res: Response) => {
   const User = UserModel();
 
   const tenantId = storeGet<string>("tenant-id");
-  
-  // const tenantId = "tenant1.com";
-// 
+
   const reqBody = {
     ...req.body,
     email: `${req.body.email}@${tenantId}.com`,
