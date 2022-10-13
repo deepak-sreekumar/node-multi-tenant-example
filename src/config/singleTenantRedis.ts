@@ -27,10 +27,12 @@ export class SafeRedis extends Redis {
     });
   }
 }
-
+// Using master creds for now
 const redisBaseOptions = {
   host: "localhost",
   port: 6379,
+  username: "safe",
+  password: "safe",
 };
 
 /**
@@ -39,24 +41,9 @@ const redisBaseOptions = {
  * @param port => Redis Server Port
  */
 
-const redisClientList = {} as Record<string, SafeRedis>;
+const tenantId = "tenant1";
 
-export const getTenantRedisClient = (tenantId: string): SafeRedis => {
-  if (tenantId in redisClientList) {
-    console.debug(
-      `[getTenantRedisClient] Redis connection for tenant Id ${tenantId} already exists. Returning existing object`
-    );
-  } else {
-    console.info(
-      `[getTenantRedisClient] Redis connection for tenant Id ${tenantId} is not present. Creating connection object`
-    );
-    // eslint-disable-next-line functional/immutable-data
-    redisClientList[tenantId] = new SafeRedis({
-      ...redisBaseOptions,
-      username: tenantId,
-      password: "deepak000000c14a5aa30c141efcc63v",
-      keyPrefix: `${tenantId}:`,
-    });
-  }
-  return redisClientList[tenantId];
-};
+export const singleTenantRedisClient = new SafeRedis({
+  ...redisBaseOptions,
+  keyPrefix: `${tenantId}:`,
+});

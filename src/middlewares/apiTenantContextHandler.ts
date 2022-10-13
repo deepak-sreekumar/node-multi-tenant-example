@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { Sequelize } from "sequelize";
+// import { Sequelize } from "sequelize";
 import { context } from "../config/context";
-import { username, password, host } from "./../config/sequelize";
+// import { username, password, host } from "./../config/sequelize";
 import { getTenantRedisClient } from "../config/redis";
 
 export const apiTenantContextHandler = (
@@ -20,21 +20,21 @@ export const apiTenantContextHandler = (
       return res.send(401);
     }
 
-    const sequelize = new Sequelize({
-      database: `safe_${tenant}`,
-      host,
-      username,
-      password,
-      dialect: "mysql",
-    });
+    // const sequelize = new Sequelize({
+    //   database: `safe_${tenant}`,
+    //   host,
+    //   username,
+    //   password,
+    //   dialect: "mysql",
+    // });
 
-    try {
-      await sequelize.authenticate();
-      console.log("Connection has been established successfully.");
-    } catch (error) {
-      console.error("Unable to connect to the database:", error);
-    }
-    store.set("sequelize", sequelize);
+    // try {
+    //   await sequelize.authenticate();
+    //   console.log("Connection has been established successfully.");
+    // } catch (error) {
+    //   console.error("Unable to connect to the database:", error);
+    // }
+    // store.set("sequelize", sequelize);
 
     const redis = getTenantRedisClient(tenant);
 

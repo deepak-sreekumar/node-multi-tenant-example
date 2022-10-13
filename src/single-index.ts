@@ -1,11 +1,11 @@
 import express from "express";
-import { addCompanyInfo, getAllUsers } from "./controllers/UserController";
-import { apiTenantContextHandler } from "./middlewares/apiTenantContextHandler";
+import {
+  addCompanyInfo,
+  getAllUsers,
+} from "./controllers/SingleUserController";
 import { cleanUp } from "./middlewares/cleanUp";
 
 export const app = express();
-
-app.use(apiTenantContextHandler);
 
 app.post("/users", addCompanyInfo);
 
