@@ -31,8 +31,6 @@ export class SafeRedis extends Redis {
 const redisBaseOptions = {
   host: "localhost",
   port: 6379,
-  username: "safe",
-  password: "safe",
 };
 
 /**
@@ -55,6 +53,8 @@ export const getTenantRedisClient = (tenantId: string): SafeRedis => {
     // eslint-disable-next-line functional/immutable-data
     redisClientList[tenantId] = new SafeRedis({
       ...redisBaseOptions,
+      username: tenantId,
+      password: "deepak000000c14a5aa30c141efcc63v",
       keyPrefix: `${tenantId}:`,
     });
   }

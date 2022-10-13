@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getValueFromStore } from "./context";
-import { redisGet } from "./helpers/redisHelpers";
+import { redisGet, redisSave } from "./helpers/redisHelpers";
 import TaskModel from "./models/Task";
 import UserModel from "./models/User";
 
@@ -29,6 +29,8 @@ export const insertUser = async (req: Request, res: Response) => {
   await User.create(reqBody, {
     include: { model: Task, as: "taskData" },
   });
+
+  await redisSave("company-info", JSON.stringify({ tenantId }));
 
   return res.sendStatus(200);
 };

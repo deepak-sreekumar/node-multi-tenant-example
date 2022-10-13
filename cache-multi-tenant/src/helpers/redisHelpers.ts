@@ -10,3 +10,16 @@ export const redisGet = async (url: string): Promise<string | null> => {
   }
   return null;
 };
+
+export const redisSave = async (
+  url: string,
+  value: string
+): Promise<string | null> => {
+  try {
+    const redisClient = getValueFromStore("redis") as SafeRedis;
+    return await redisClient.set(url, value);
+  } catch (error) {
+    console.error(`[redisSave] Exception : ${error}`);
+  }
+  return null;
+};
