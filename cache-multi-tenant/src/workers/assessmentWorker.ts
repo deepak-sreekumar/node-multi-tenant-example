@@ -1,29 +1,25 @@
-import { ConsumeMessage } from "amqplib";
-
 import createConsumer from "../helpers/createConsumer";
-import amqpChannel from "../config/amqpChannel";
 
 import UserModel from "../models/User";
 import { consumerTenantContextHandler } from "../middlewares/consumerTenantContextHandler";
 import { getTenantFromStore } from "../helpers/getTenantFromStore";
+import publishMessageToQueue from "../helpers/publishMessage";
 const TAG = "assessmentWorker";
 
-export const processAssessment = async (
-  msg: ConsumeMessage | null
-): Promise<void> => {
+export const processAssessment = async (msg: string | null): Promise<void> => {
   if (!msg) {
     console.error(`[${TAG}] Received invalid/null message`);
-    return;
+    throw new Error("Received empty/null message");
   }
 
-  console.info("Got Message");
-
+  console.log(`${TAG} Got message ${msg}`);
   const User = UserModel();
   const user = await User.findAll({ raw: true });
   const tenantId = getTenantFromStore();
-  console.log(`Got User data for ${tenantId}`);
+  console.log(`${TAG} Got User data for ${tenantId}`);
   console.info(user);
-  amqpChannel.ack(msg);
+  console.log(`${TAG} Publishing mesage to scoring worker`);
+  await publishMessageToQueue(msg, "scoringWorker");
 };
 
 const worker = consumerTenantContextHandler(
