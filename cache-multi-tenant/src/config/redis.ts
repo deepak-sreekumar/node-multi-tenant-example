@@ -42,7 +42,13 @@ const redisBaseOptions = {
 
 const redisClientList = {} as Record<string, SafeRedis>;
 
-export const getTenantRedisClient = (tenantId: string): SafeRedis => {
+export const getTenantRedisClient = (
+  tenantId: string,
+  credentials: {
+    username: string;
+    password: string;
+  }
+): SafeRedis => {
   if (tenantId in redisClientList) {
     console.debug(
       `[getTenantRedisClient] Redis connection for tenant Id ${tenantId} already exists. Returning existing object`
@@ -54,8 +60,8 @@ export const getTenantRedisClient = (tenantId: string): SafeRedis => {
     // eslint-disable-next-line functional/immutable-data
     redisClientList[tenantId] = new SafeRedis({
       ...redisBaseOptions,
-      username: tenantId,
-      password: "deepak000000c14a5aa30c141efcc63v",
+      username: credentials.username,
+      password: credentials.password,
       keyPrefix: `${tenantId}:`,
     });
   }

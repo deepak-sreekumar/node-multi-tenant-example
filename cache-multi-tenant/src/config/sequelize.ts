@@ -18,7 +18,11 @@ export const host = "localhost";
 const cache = new Map<string, Sequelize>();
 
 export const getTenantSequelizeClient = async (
-  tenantId: string
+  tenantId: string,
+  credentials: {
+    username: string;
+    password: string;
+  }
 ): Promise<Sequelize> => {
   let sequelize: Sequelize;
   if (cache.has(tenantId)) {
@@ -27,8 +31,8 @@ export const getTenantSequelizeClient = async (
     sequelize = new Sequelize({
       database: `safe_${tenantId}`,
       host,
-      username,
-      password,
+      username: credentials.username,
+      password: credentials.password,
       dialect: "mysql",
     });
     cache.set(tenantId, sequelize);

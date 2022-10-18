@@ -16,10 +16,16 @@ export const apiTenantContextHandler = async (
     if (!tenant) {
       return res.send(401);
     }
-    const sequelize = await getTenantSequelizeClient(tenant);
+    const sequelize = await getTenantSequelizeClient(tenant, {
+      username: "root",
+      password: "root",
+    });
     setKeyInStore("sequelize", sequelize);
 
-    const redis = getTenantRedisClient(tenant);
+    const redis = getTenantRedisClient(tenant, {
+      username: tenant,
+      password: "deepak000000c14a5aa30c141efcc63v",
+    });
     setKeyInStore("redis", redis);
 
     return next();

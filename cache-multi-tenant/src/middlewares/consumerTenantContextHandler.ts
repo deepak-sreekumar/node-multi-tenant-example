@@ -19,7 +19,10 @@ export const consumerTenantContextHandler = (
         console.log(tenantId);
         setKeyInStore("tenant-id", tenantId);
         console.log(`Setting tenant id as ${tenantId}`);
-        const sequelize = await getTenantSequelizeClient(tenantId);
+        const sequelize = await getTenantSequelizeClient(tenantId, {
+          username: "root",
+          password: "root",
+        });
         setKeyInStore("sequelize", sequelize);
         console.log(`Setting sequelize in context`);
 
