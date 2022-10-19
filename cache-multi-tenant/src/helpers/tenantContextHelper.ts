@@ -4,14 +4,11 @@ import axios from "axios";
 
 const SAFE_ENT_URL = "https://deepak-dev-ent-api.safescore.io/v2";
 
-const tenantConfigCache = new Map<string, TenantConfig>();
-
 export const getTokens = (
   req: Request
 ): { accessToken: string; idToken: string } | null => {
   const accessToken = req.headers["authorization"] as string;
   const idToken = req.headers["x-safe-id-token"] as string;
-  console.log({ accessToken, idToken });
   if (accessToken && idToken) {
     return { accessToken, idToken };
   }
@@ -21,18 +18,18 @@ export const getTokens = (
 export const getTenantId = (idToken: string): string | undefined => {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const decoded = jwtDecode(idToken) as { [key: string]: string[] };
-  console.log(`Decoded Jwt token`);
 
   const tenantGroup = decoded["cognito:groups"].find((role: string) =>
     role.startsWith("SafeEnt-")
   );
-  console.log(`Tenant group from jwt token = ${tenantGroup}`);
 
   const tenantId = tenantGroup && tenantGroup.split("SafeEnt-")[1];
   console.log(`Tenant id = ${tenantId}`);
 
   return tenantId;
 };
+
+const tenantConfigCache = new Map<string, TenantConfig>();
 
 export const getTenantConfig = async (
   tenantId: string,

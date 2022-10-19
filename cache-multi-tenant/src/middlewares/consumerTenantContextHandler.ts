@@ -18,7 +18,6 @@ export const consumerTenantContextHandler = (
         const { tenantId, message } = JSON.parse(rawMessage.content.toString());
         console.log(tenantId);
         setKeyInStore("tenant-id", tenantId);
-        console.log(`Setting tenant id as ${tenantId}`);
         const sequelize = await getTenantSequelizeClient(tenantId, {
           username: "root",
           password: "root",
