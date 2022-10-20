@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { client } from "./config/redis";
 import { getValueFromStore } from "./context";
+import decryptContent from "./helpers/decryptContent";
+import encryptContent from "./helpers/encryptContent";
+import { getTenantFromStore } from "./helpers/getTenantFromStore";
 import TaskModel from "./models/Task";
 import UserModel from "./models/User";
 
@@ -12,6 +15,17 @@ export const getAllUsers = async (req: Request, res: Response) => {
     attributes: ["email"],
   });
   const tenantInfo = await client().get("company-info");
+
+  const tenantId = getTenantFromStore();
+
+  const encryptedContent = await encryptContent(tenantId);
+
+  console.log(`encryptedContent:${encryptedContent}`);
+
+  const decryptedContent =
+    encryptedContent && (await decryptContent(encryptedContent));
+
+  console.log(`decryptedContent:${decryptedContent}`);
 
   return res.send({ users, tenantInfo });
 };

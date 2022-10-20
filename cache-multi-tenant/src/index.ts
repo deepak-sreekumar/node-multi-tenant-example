@@ -15,6 +15,7 @@ app.get("/settings", async (req, res) => {
 });
 
 app.use(cognitoTenantContextHandler);
+// app.use(apiTenantContextHandler);
 
 app.get("/users", getAllUsers);
 app.post("/users", insertUser);

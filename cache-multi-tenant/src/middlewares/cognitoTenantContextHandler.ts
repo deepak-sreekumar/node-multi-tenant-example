@@ -8,6 +8,7 @@ import {
   getTenantId,
   getTokens,
 } from "../helpers/tenantContextHelper";
+import { getTenantKms } from "../config/kms";
 
 // const tenantConfig = Map<string, unknown>;
 export const cognitoTenantContextHandler = async (
@@ -23,7 +24,7 @@ export const cognitoTenantContextHandler = async (
 
     const tenantId = tenantTokens && getTenantId(tenantTokens.idToken);
 
-    if (!tenantId ) {
+    if (!tenantId) {
       return res.send(401);
     }
 
@@ -36,16 +37,20 @@ export const cognitoTenantContextHandler = async (
     setKeyInStore("tenant-id", tenantId);
 
     const sequelize = await getTenantSequelizeClient(tenantId, {
-      username: tenantConfig.dbUserName,
-      password: tenantConfig.dbPassword,
+      username: tenantConfig.secret.dbUserName,
+      password: tenantConfig.secret.dbPassword,
     });
     setKeyInStore("sequelize", sequelize);
 
     const redis = getTenantRedisClient(tenantId, {
-      username: tenantConfig.redisUserName,
-      password: tenantConfig.redisPassword,
+      username: tenantConfig.secret.redisUserName,
+      password: tenantConfig.secret.redisPassword,
     });
     setKeyInStore("redis", redis);
+
+    const kmsConfig = getTenantKms(tenantId, tenantConfig.iamCredentials);
+
+    setKeyInStore("kmsConfig", kmsConfig);
 
     return next();
   });

@@ -40,7 +40,7 @@ export const getTenantConfig = async (
 ): Promise<TenantConfig | null> => {
   let result = null;
   if (tenantConfigCache.has(tenantId)) {
-    result = tenantConfigCache.get(tenantId);
+    result = tenantConfigCache.get(tenantId) as TenantConfig;
   } else {
     const url = `${SAFE_ENT_URL}/tenant/credentials`;
     const headers = {
@@ -48,15 +48,22 @@ export const getTenantConfig = async (
       "X-Safe-Id-Token": tenantTokens.idToken,
     };
     const response = await axios.get(url, { headers });
-    result = response.data.secret;
+    const secret = JSON.parse(response.data.secret);
+    const iamCredentials = response.data.iamCredentials;
+    result = { secret, iamCredentials };
+
+    // Need to add helper to refresh cache after expiry of iam tokens
     tenantConfigCache.set(tenantId, result);
   }
-  return result && JSON.parse(result);
+  return result;
 };
 
 interface TenantConfig {
-  redisUserName: string;
-  redisPassword: string;
-  dbUserName: string;
-  dbPassword: string;
+  secret: {
+    redisUserName: string;
+    redisPassword: string;
+    dbUserName: string;
+    dbPassword: string;
+  };
+  iamCredentials: AWS.Credentials;
 }
