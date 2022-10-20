@@ -3,6 +3,7 @@ import { Request } from "express";
 import axios from "axios";
 
 const SAFE_ENT_URL = "https://deepak-dev-ent-api.safescore.io/v2";
+const MAX_FUNCTION_EXECUTION_TIME_SECONDS = 300;
 
 export const getTokens = (
   req: Request
@@ -38,23 +39,32 @@ export const getTenantConfig = async (
     idToken: string;
   }
 ): Promise<TenantConfig | null> => {
-  let result = null;
   if (tenantConfigCache.has(tenantId)) {
-    result = tenantConfigCache.get(tenantId) as TenantConfig;
-  } else {
-    const url = `${SAFE_ENT_URL}/tenant/credentials`;
-    const headers = {
-      Authorization: tenantTokens.accessToken,
-      "X-Safe-Id-Token": tenantTokens.idToken,
-    };
-    const response = await axios.get(url, { headers });
-    const secret = JSON.parse(response.data.secret);
-    const iamCredentials = response.data.iamCredentials;
-    result = { secret, iamCredentials };
-
-    // Need to add helper to refresh cache after expiry of iam tokens
-    tenantConfigCache.set(tenantId, result);
+    const result = tenantConfigCache.get(tenantId) as TenantConfig;
+    if (result.iamCredentials) {
+      // Check for IAM session expiry before returning the tokens from cache
+      console.log(`Found existing IAM session for ${tenantId}`);
+      const expirationTime = result.iamCredentials.expireTime?.getTime();
+      if (expirationTime && !aboutToExpire(expirationTime)) {
+        console.log(
+          `Session is not about to expire for tenantId = ${tenantId}. Will use it`
+        );
+        return result;
+      }
+    }
   }
+  const url = `${SAFE_ENT_URL}/tenant/credentials`;
+  const headers = {
+    Authorization: tenantTokens.accessToken,
+    "X-Safe-Id-Token": tenantTokens.idToken,
+  };
+  const response = await axios.get(url, { headers });
+  const secret = JSON.parse(response.data.secret);
+  const iamCredentials = response.data.iamCredentials;
+  const result = { secret, iamCredentials };
+
+  tenantConfigCache.set(tenantId, result);
+
   return result;
 };
 
@@ -67,3 +77,16 @@ interface TenantConfig {
   };
   iamCredentials: AWS.Credentials;
 }
+
+const aboutToExpire = (expirationTime: number): boolean => {
+  if (
+    expirationTime - new Date().getTime() <
+    MAX_FUNCTION_EXECUTION_TIME_SECONDS * 1000
+  ) {
+    console.log(
+      `Token about to expire. expirationTime = ${expirationTime} MAX_LAMBDA_EXECUTION_TIME_SECONDS = ${MAX_FUNCTION_EXECUTION_TIME_SECONDS}`
+    );
+    return true;
+  }
+  return false;
+};
