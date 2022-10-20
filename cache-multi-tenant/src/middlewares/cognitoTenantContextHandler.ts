@@ -15,43 +15,47 @@ export const cognitoTenantContextHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
-  await contextInIt(async () => {
-    const tenantTokens = getTokens(req);
-    if (!tenantTokens) {
-      return res.send(401);
-    }
+): Promise<void | Response> => {
+  try {
+    await contextInIt(async () => {
+      const tenantTokens = getTokens(req);
+      if (!tenantTokens) {
+        return res.send(401);
+      }
 
-    const tenantId = tenantTokens && getTenantId(tenantTokens.idToken);
+      const tenantId = tenantTokens && getTenantId(tenantTokens.idToken);
 
-    if (!tenantId) {
-      return res.send(401);
-    }
+      if (!tenantId) {
+        return res.send(401);
+      }
 
-    const tenantConfig = await getTenantConfig(tenantId, tenantTokens);
+      const tenantConfig = await getTenantConfig(tenantId, tenantTokens);
 
-    if (!tenantConfig) {
-      return res.send(401);
-    }
+      if (!tenantConfig) {
+        return res.send(401);
+      }
 
-    setKeyInStore("tenant-id", tenantId);
+      setKeyInStore("tenant-id", tenantId);
 
-    const sequelize = await getTenantSequelizeClient(tenantId, {
-      username: tenantConfig.secret.dbUserName,
-      password: tenantConfig.secret.dbPassword,
+      const sequelize = await getTenantSequelizeClient(tenantId, {
+        username: tenantConfig.secret.dbUserName,
+        password: tenantConfig.secret.dbPassword,
+      });
+      setKeyInStore("sequelize", sequelize);
+
+      const redis = getTenantRedisClient(tenantId, {
+        username: tenantConfig.secret.redisUserName,
+        password: tenantConfig.secret.redisPassword,
+      });
+      setKeyInStore("redis", redis);
+
+      const kmsConfig = getTenantKms(tenantId, tenantConfig.iamCredentials);
+
+      setKeyInStore("kmsConfig", kmsConfig);
+
+      return next();
     });
-    setKeyInStore("sequelize", sequelize);
-
-    const redis = getTenantRedisClient(tenantId, {
-      username: tenantConfig.secret.redisUserName,
-      password: tenantConfig.secret.redisPassword,
-    });
-    setKeyInStore("redis", redis);
-
-    const kmsConfig = getTenantKms(tenantId, tenantConfig.iamCredentials);
-
-    setKeyInStore("kmsConfig", kmsConfig);
-
-    return next();
-  });
+  } catch {
+    return res.sendStatus(500);
+  }
 };
