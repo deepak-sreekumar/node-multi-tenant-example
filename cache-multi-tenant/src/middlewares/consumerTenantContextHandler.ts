@@ -7,32 +7,31 @@ export const consumerTenantContextHandler = (
   handler: Function,
   functionTag: string
 ) => {
-  return async function (message: ConsumeMessage | null): Promise<void> {
+  return async function (rawMessage: ConsumeMessage | null): Promise<void> {
     const TAG = `[consumerWrapper | ${functionTag}]`;
-    if (!message) {
+    if (!rawMessage) {
       return;
     }
 
-    const tenantId = message.content.toString();
-
     await contextInIt(async () => {
-      setKeyInStore("tenant-id", tenantId);
-      console.log(`Setting tenant id as ${tenantId}`);
-      const sequelize = await getTenantSequelizeClient(tenantId);
-      setKeyInStore("sequelize", sequelize);
-      console.log(`Setting sequelize in context`);
-
       try {
+        const { tenantId, message } = JSON.parse(rawMessage.content.toString());
+        console.log(tenantId);
+        setKeyInStore("tenant-id", tenantId);
+        console.log(`Setting tenant id as ${tenantId}`);
+        const sequelize = await getTenantSequelizeClient(tenantId);
+        setKeyInStore("sequelize", sequelize);
+        console.log(`Setting sequelize in context`);
+
         await handler(message);
+        amqpChannel.ack(rawMessage);
       } catch (error) {
         console.error(
           `${TAG} Exception caught ${error} for message: ${JSON.stringify({
-            ...message,
-            content: message.content.toString(),
+            content: rawMessage.content.toString(),
           })}`
         );
-      } finally {
-        amqpChannel.ack(message);
+        amqpChannel.ack(rawMessage);
       }
     });
   };

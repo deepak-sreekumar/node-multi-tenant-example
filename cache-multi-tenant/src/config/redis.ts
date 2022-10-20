@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { getValueFromStore } from "../context";
 
 const keyPrefix = `${process.env.TENANT_ID}:`;
 
@@ -13,7 +14,7 @@ const keyPrefix = `${process.env.TENANT_ID}:`;
  * If you have to use such methods, SafeRedis is a place for extending the Base Redis class to override those to handle keyPrefix (Eg: "keys" method below)
  */
 // eslint-disable-next-line functional/no-class
-export class SafeRedis extends Redis {
+class SafeRedis extends Redis {
   async keys(pattern: string): Promise<string[]> {
     /**
      * Disabling ES lint warning here since we need to create a patter based on tenant id, which is not a literal
@@ -59,4 +60,8 @@ export const getTenantRedisClient = (tenantId: string): SafeRedis => {
     });
   }
   return redisClientList[tenantId];
+};
+
+export const client = (): SafeRedis => {
+  return getValueFromStore("redis") as SafeRedis;
 };
