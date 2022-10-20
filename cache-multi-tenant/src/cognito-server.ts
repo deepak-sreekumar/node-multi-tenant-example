@@ -1,5 +1,5 @@
 import express from "express";
-import { apiTenantContextHandler } from "./middlewares/apiTenantContextHandler";
+import { cognitoTenantContextHandler } from "./middlewares/cognitoTenantContextHandler";
 import User from "./models/User";
 import { getAllUsers, insertUser } from "./UserController";
 
@@ -13,7 +13,7 @@ app.get("/settings", async (req, res) => {
   return res.send(users);
 });
 
-app.use(apiTenantContextHandler);
+app.use(cognitoTenantContextHandler);
 
 app.get("/users", getAllUsers);
 app.post("/users", insertUser);

@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon",
+    "start:cognito": "ts-node src/cognito-server",
     "build": "tsc"
   },
   "devDependencies": {
