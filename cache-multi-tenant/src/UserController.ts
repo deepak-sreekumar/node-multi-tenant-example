@@ -27,7 +27,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
   console.log(`decryptedContent:${decryptedContent}`);
 
-  return res.send({ users, tenantInfo });
+  return res.send({ users, tenantInfo, encryptedContent, decryptedContent });
 };
 
 export const insertUser = async (req: Request, res: Response) => {
