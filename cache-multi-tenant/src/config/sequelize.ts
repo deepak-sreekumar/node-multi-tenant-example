@@ -1,4 +1,5 @@
 import { Options } from "sequelize";
+import { Sequelize } from "sequelize";
 
 export const commonConf: Options = {
   pool: {
@@ -13,3 +14,28 @@ export const commonConf: Options = {
 export const username = "root";
 export const password = "root";
 export const host = "localhost";
+
+const cache = new Map<string, Sequelize>();
+
+export const getTenantSequelizeClient = async (
+  tenantId: string
+): Promise<Sequelize> => {
+  let sequelize: Sequelize;
+  if (cache.has(tenantId)) {
+    sequelize = cache.get(tenantId) as Sequelize;
+  } else {
+    sequelize = new Sequelize({
+      database: `safe_${tenantId}`,
+      host,
+      username,
+      password,
+      dialect: "mysql",
+    });
+    cache.set(tenantId, sequelize);
+  }
+
+  await sequelize.authenticate();
+  console.log("Connection has been established successfully.");
+
+  return sequelize;
+};
